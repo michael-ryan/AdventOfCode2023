@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, HashSet}};
+use std::collections::{HashMap, HashSet};
 
 use crate::common;
 
@@ -22,10 +22,6 @@ fn part1_parse(lines: &Vec<String>) -> Vec<Vec<i32>> {
 }
 
 fn part2_parse(lines: &Vec<String>) -> Vec<Vec<i32>> {
-    lines.iter().map(|line| deal_with_line(line.to_string())).collect()
-}
-
-fn deal_with_line(line: String) -> Vec<i32> {
     let digits: HashMap<String, i32> = HashMap::from([
         ("one".to_string(), 1),
         ("two".to_string(), 2),
@@ -37,27 +33,24 @@ fn deal_with_line(line: String) -> Vec<i32> {
         ("eight".to_string(), 8),
         ("nine".to_string(), 9),
     ]);
-
     let keys: HashSet<String> = digits.keys().map(|k| k.to_string()).collect();
 
-    let mut found_digits: Vec<i32> = vec![];
-    let mut search = String::new();
-    for c in line.chars() {
-        search.push(c);
+    lines.iter().map(|line| {
+        let mut found_digits: Vec<i32> = vec![];
+        let mut search = String::new();
+        for c in line.chars() {
+            search.push(c);
 
-        let found = ends_with_set_member(&search, &keys);
-        if search.chars().last().unwrap().is_ascii_digit() {
-            found_digits.push(c.to_string().parse::<i32>().unwrap());
-        } else if found.is_some() {
-            found_digits.push(digits.get(found.unwrap()).unwrap().clone());
+            let found = keys.iter().find(|key: &&String| search.ends_with(*key));
+            if search.chars().last().unwrap().is_ascii_digit() {
+                found_digits.push(c.to_string().parse::<i32>().unwrap());
+            } else if found.is_some() {
+                found_digits.push(digits.get(found.unwrap()).unwrap().to_owned());
+            }
         }
-    }
 
-    found_digits
-}
-
-fn ends_with_set_member<'a>(input: &'a String, set: &'a HashSet<String>) -> Option<&'a String> {
-    set.iter().find(|key: &&String| input.ends_with(*key))
+        found_digits
+    }).collect()
 }
 
 #[cfg(test)]
