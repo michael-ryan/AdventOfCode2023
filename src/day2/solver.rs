@@ -45,7 +45,6 @@ fn parse(lines: &Vec<String>) -> Vec<Vec<Handful>>{
                 }
             }
             handfuls.push(new_handful);
-            dbg!(new_handful);
         }
         games.push(handfuls);
     }
