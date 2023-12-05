@@ -25,46 +25,28 @@ fn parse(lines: &Vec<String>) -> Vec<Vec<Handful>>{
 
     let mut games: Vec<Vec<Handful>> = Vec::new();
 
-    let mut quantity = 0;
-    let mut done = false;
-    let mut new_handful = Handful{
-        red: 0,
-        green: 0,
-        blue: 0,
-    };
     for line in lines {
         let mut handfuls: Vec<Handful> = Vec::new();
-        for (index, item) in line.split_whitespace().collect::<Vec<&str>>()[2..].iter().enumerate() {
-            if index % 2 == 0 {
-                quantity = item.parse().unwrap();
-            } else {
-                let mut colour = *item;
-                if colour.ends_with(';') {
-                    done = true;
-                }
-                colour = colour.trim_end_matches(',').trim_end_matches(';');
-
-                match colour {
+        for grab in line.split(':').collect::<Vec<&str>>()[1].split(';').map(|grab| grab.trim()) {
+            let split_grab = grab.split(", ").collect::<Vec<&str>>();
+            let mut new_handful = Handful{
+                red: 0,
+                green: 0,
+                blue: 0,
+            };
+            for colour_quantity in split_grab {
+                let split_colour_quantity = colour_quantity.split(' ').collect::<Vec<&str>>();
+                let quantity = split_colour_quantity[0].parse::<u32>().unwrap();
+                match split_colour_quantity[1] {
                     "red" => new_handful.red = quantity,
                     "green" => new_handful.green = quantity,
                     "blue" => new_handful.blue = quantity,
-                    _ => panic!("Found unknown colour: {}", colour),
-                }
-    
-                if done {
-                    done = false;
-                    handfuls.push(new_handful);
-                    new_handful = Handful{
-                        red: 0,
-                        green: 0,
-                        blue: 0,
-                    }
+                    _ => panic!("unknown colour {}", split_colour_quantity[0]),
                 }
             }
+            handfuls.push(new_handful);
+            dbg!(new_handful);
         }
-        
-        done = false;
-        handfuls.push(new_handful);
         games.push(handfuls);
     }
 
@@ -104,8 +86,6 @@ fn is_game_possible(game: &Vec<Handful>, bag: &Handful) -> bool {
 fn part2(read_lines: &Vec<String>) -> u32 {
     let games = parse(read_lines);
 
-    dbg!(games.len());
-
     let mut bags: Vec<Handful> = vec![];
 
     for game in games {
@@ -116,7 +96,6 @@ fn part2(read_lines: &Vec<String>) -> u32 {
 }
 
 fn compute_smallest_bag(game: &Vec<Handful>) -> Handful {
-    dbg!(game);
     let mut bag = Handful { red: 0, green: 0, blue: 0 };
     for handful in game {
         if handful.red > bag.red {
@@ -129,7 +108,7 @@ fn compute_smallest_bag(game: &Vec<Handful>) -> Handful {
             bag.blue = handful.blue;
         }
     }
-    dbg!(bag);
+
     bag
 }
 
